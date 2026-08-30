@@ -1,0 +1,163 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * THỊNH PHÁT — boutique hair accessories design system.
+ * Palette: white + cream + beige + deep brown + soft dusty rose accent.
+ * All colors are oklch semantic tokens. Never hardcode colors in components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  --color-cream: var(--cream);
+  --color-beige: var(--beige);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-rose-foreground: var(--rose-foreground);
+  --color-zalo: var(--zalo);
+  --color-zalo-foreground: var(--zalo-foreground);
+
+  --shadow-soft: 0 1px 2px oklch(0.32 0.03 45 / 0.04), 0 8px 24px -12px oklch(0.32 0.03 45 / 0.14);
+  --shadow-lift: 0 2px 4px oklch(0.32 0.03 45 / 0.05), 0 18px 40px -16px oklch(0.32 0.03 45 / 0.22);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.995 0.004 85);
+  --foreground: oklch(0.26 0.026 48);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.26 0.026 48);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.26 0.026 48);
+
+  --primary: oklch(0.3 0.032 45);
+  --primary-foreground: oklch(0.985 0.008 85);
+
+  --secondary: oklch(0.965 0.012 80);
+  --secondary-foreground: oklch(0.3 0.032 45);
+
+  --muted: oklch(0.96 0.012 80);
+  --muted-foreground: oklch(0.53 0.018 55);
+
+  --accent: oklch(0.94 0.022 20);
+  --accent-foreground: oklch(0.36 0.05 20);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0.008 85);
+
+  --border: oklch(0.915 0.012 75);
+  --input: oklch(0.9 0.012 75);
+  --ring: oklch(0.72 0.06 20);
+
+  --cream: oklch(0.975 0.014 82);
+  --beige: oklch(0.945 0.02 78);
+  --rose: oklch(0.68 0.075 18);
+  --rose-soft: oklch(0.93 0.03 18);
+  --rose-foreground: oklch(0.99 0.005 85);
+  --zalo: oklch(0.56 0.17 250);
+  --zalo-foreground: oklch(0.99 0.005 250);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility brand-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-rose);
+}
+
+@utility reveal {
+  animation: reveal-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes zalo-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.56 0.17 250 / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 12px oklch(0.56 0.17 250 / 0);
+  }
+}
+
+@utility zalo-pulse {
+  animation: zalo-pulse 2.4s ease-out infinite;
+}
