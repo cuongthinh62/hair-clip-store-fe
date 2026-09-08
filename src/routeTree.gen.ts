@@ -10,15 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DanhMucRouteImport } from './routes/danh-muc'
 import { Route as GioiThieuRouteImport } from './routes/gioi-thieu'
 import { Route as LienHeRouteImport } from './routes/lien-he'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as SanPhamIndexRouteImport } from './routes/san-pham.index'
 import { Route as SanPhamSlugRouteImport } from './routes/san-pham.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DanhMucRoute = DanhMucRouteImport.update({
@@ -36,6 +43,11 @@ const LienHeRoute = LienHeRouteImport.update({
   path: '/lien-he',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SanPhamIndexRoute = SanPhamIndexRouteImport.update({
   id: '/san-pham/',
   path: '/san-pham/',
@@ -49,26 +61,32 @@ const SanPhamSlugRoute = SanPhamSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
+  '/login': typeof LoginRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham/': typeof SanPhamIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
+  '/login': typeof LoginRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham': typeof SanPhamIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
+  '/login': typeof LoginRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham/': typeof SanPhamIndexRoute
 }
@@ -76,34 +94,42 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/danh-muc'
     | '/gioi-thieu'
     | '/lien-he'
+    | '/login'
     | '/san-pham/$slug'
     | '/san-pham/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/danh-muc'
     | '/gioi-thieu'
     | '/lien-he'
+    | '/login'
     | '/san-pham/$slug'
     | '/san-pham'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/danh-muc'
     | '/gioi-thieu'
     | '/lien-he'
+    | '/login'
     | '/san-pham/$slug'
     | '/san-pham/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   DanhMucRoute: typeof DanhMucRoute
   GioiThieuRoute: typeof GioiThieuRoute
   LienHeRoute: typeof LienHeRoute
+  LoginRoute: typeof LoginRoute
   SanPhamSlugRoute: typeof SanPhamSlugRoute
   SanPhamIndexRoute: typeof SanPhamIndexRoute
 }
@@ -115,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/danh-muc': {
@@ -138,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LienHeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/san-pham/': {
       id: '/san-pham/'
       path: '/san-pham'
@@ -157,9 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   DanhMucRoute: DanhMucRoute,
   GioiThieuRoute: GioiThieuRoute,
   LienHeRoute: LienHeRoute,
+  LoginRoute: LoginRoute,
   SanPhamSlugRoute: SanPhamSlugRoute,
   SanPhamIndexRoute: SanPhamIndexRoute,
 }

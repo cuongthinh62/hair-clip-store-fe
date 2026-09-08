@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -14,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingZaloButton } from "@/components/FloatingZaloButton";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -127,18 +129,26 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAuthOrAdmin =
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/");
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
-        <Navbar />
+        {!isAuthOrAdmin && <Navbar />}
         <main className="flex-1">
           {/* Required: nested routes render here. */}
           <Outlet />
         </main>
-        <Footer />
-        <FloatingZaloButton />
+        {!isAuthOrAdmin && <Footer />}
+        {!isAuthOrAdmin && <FloatingZaloButton />}
+        <Toaster position="top-right" richColors />
       </div>
     </QueryClientProvider>
   );
 }
+

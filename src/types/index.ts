@@ -116,3 +116,24 @@ export interface GetProductsParams {
   sortBy?: ("createdAt" | "price" | "soldQuantity") | undefined;
   sortOrder?: ("asc" | "desc") | undefined;
 }
+
+// ================== AUTH TYPES ==================
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+  secretKey: string;
+}
+
+export interface LoginResponseData {
+  accessToken?: string | undefined;
+  token?: string | undefined;
+  user?: {
+    _id?: string | undefined;
+    username?: string | undefined;
+    role?: string | undefined;
+    [key: string]: unknown;
+  } | undefined;
+  [key: string]: unknown;
+}
+
