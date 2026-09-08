@@ -126,6 +126,7 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponseData {
+  message?: string | undefined; // 👈 thêm dòng này
   accessToken?: string | undefined;
   token?: string | undefined;
   user?:

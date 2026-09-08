@@ -24,7 +24,6 @@ function LoginPage() {
   const [showSecretKey, setShowSecretKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Nếu đã đăng nhập trước đó thì tự động chuyển sang trang admin
   useEffect(() => {
     if (api.isAuthenticated()) {
       router.navigate({ to: "/admin" });
@@ -57,13 +56,10 @@ function LoginPage() {
       });
 
       toast.success(res.message || "Đăng nhập quản trị viên thành công!");
-      // Chuyển hướng sang trang quản trị admin
       router.navigate({ to: "/admin" });
     } catch (err: unknown) {
       const msg =
-        err instanceof Error
-          ? err.message
-          : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
+        err instanceof Error ? err.message : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -73,7 +69,6 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100/60 px-4 py-8 font-sans text-slate-800 antialiased">
       <div className="w-full max-w-[400px] rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-lg shadow-slate-200/40 transition-all">
-        {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-md">
             <span className="font-serif text-2xl font-bold">R</span>
@@ -84,9 +79,7 @@ function LoginPage() {
           <p className="text-xs font-medium text-slate-500">Cổng Quản Trị Nội Bộ</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Username */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700">Tên đăng nhập</label>
             <div className="relative flex items-center">
@@ -103,7 +96,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Password */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700">Mật khẩu</label>
             <div className="relative flex items-center">
@@ -128,7 +120,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Secret Key */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700">
               Mã bảo mật (Secret Key) <span className="text-red-500">*</span>
@@ -155,7 +146,6 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
