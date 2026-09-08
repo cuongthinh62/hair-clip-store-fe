@@ -128,12 +128,13 @@ export interface LoginCredentials {
 export interface LoginResponseData {
   accessToken?: string | undefined;
   token?: string | undefined;
-  user?: {
-    _id?: string | undefined;
-    username?: string | undefined;
-    role?: string | undefined;
-    [key: string]: unknown;
-  } | undefined;
+  user?:
+    | {
+        _id?: string | undefined;
+        username?: string | undefined;
+        role?: string | undefined;
+        [key: string]: unknown;
+      }
+    | undefined;
   [key: string]: unknown;
 }
-

@@ -203,7 +203,10 @@ export const api = {
   /**
    * Cập nhật sản phẩm (Admin)
    */
-  async updateProduct(id: string, data: Partial<BackendProduct>): Promise<ApiResponse<BackendProduct>> {
+  async updateProduct(
+    id: string,
+    data: Partial<BackendProduct>,
+  ): Promise<ApiResponse<BackendProduct>> {
     return request<BackendProduct>(`/products/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -252,7 +255,10 @@ export const api = {
   /**
    * Cập nhật danh mục (Admin)
    */
-  async updateCategory(id: string, data: Partial<BackendCategory>): Promise<ApiResponse<BackendCategory>> {
+  async updateCategory(
+    id: string,
+    data: Partial<BackendCategory>,
+  ): Promise<ApiResponse<BackendCategory>> {
     return request<BackendCategory>(`/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -268,4 +274,3 @@ export const api = {
     });
   },
 };
-
