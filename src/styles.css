@@ -161,3 +161,21 @@
 @utility zalo-pulse {
   animation: zalo-pulse 2.4s ease-out infinite;
 }
+
+@layer components {
+  .form-input {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: white;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-foreground);
+    outline: none;
+  }
+
+  .form-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px oklch(0.3 0.032 45 / 0.08);
+  }
+}

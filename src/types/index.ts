@@ -19,6 +19,7 @@ export interface Product {
   images: string[];
   featured?: boolean | undefined;
   bestSeller?: boolean | undefined;
+  isActive?: boolean | undefined;
   stockQuantity?: number | undefined;
   soldQuantity?: number | undefined;
   occasion?: string | undefined;

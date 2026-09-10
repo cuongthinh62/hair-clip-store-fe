@@ -101,6 +101,7 @@ export function mapBackendProduct(doc: BackendProduct): Product {
     images,
     featured: Boolean(doc.isFeatured),
     bestSeller: Boolean(doc.bestSeller),
+    isActive: doc.isActive,
     stockQuantity: doc.stockQuantity ?? 0,
     soldQuantity: doc.soldQuantity ?? 0,
     occasion: doc.occasion || "",
