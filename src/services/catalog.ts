@@ -155,9 +155,31 @@ export const catalogService = {
       // Xoá categorySlug trước khi gửi lên API vì backend không nhận field này
       delete resolvedParams.categorySlug;
 
-      const response = await api.getProducts(resolvedParams);
-      if (response.data && response.data.length > 0) {
-        return response.data.map(mapBackendProduct);
+      const firstResponse = await api.getProducts({
+        ...resolvedParams,
+        page: resolvedParams.page ?? 1,
+      });
+      const allDocs = [...(firstResponse.data ?? [])];
+      const totalPages = firstResponse.pagination?.totalPages ?? 1;
+
+      for (let page = (resolvedParams.page ?? 1) + 1; page <= totalPages; page += 1) {
+        const response = await api.getProducts({ ...resolvedParams, page });
+        allDocs.push(...(response.data ?? []));
+      }
+
+      if (allDocs.length > 0) {
+        const categories = await this.listCategories();
+        return allDocs.map((doc) => {
+          const product = mapBackendProduct(doc);
+          if (product.categoryId && !product.categoryName) {
+            const category = categories.find((item) => item.id === product.categoryId);
+            if (category) {
+              product.category = category.slug;
+              product.categoryName = category.name;
+            }
+          }
+          return product;
+        });
       }
       // Nếu lọc mà không có kết quả từ DB, trả về mảng rỗng
       if (resolvedParams?.categoryId || resolvedParams?.search) {
