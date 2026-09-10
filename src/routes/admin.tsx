@@ -740,14 +740,25 @@ function ProductForm({
   const [name, setName] = useState(product?.name ?? "");
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? categories[0]?.id ?? "");
   const [price, setPrice] = useState(String(product?.price ?? ""));
+  const [discountPrice, setDiscountPrice] = useState(String(product?.discountPrice ?? ""));
   const [wholesalePrice, setWholesalePrice] = useState(String(product?.wholesalePrice ?? ""));
   const [stock, setStock] = useState(String(product?.stockQuantity ?? 0));
+  const [soldQuantity, setSoldQuantity] = useState(String(product?.soldQuantity ?? 0));
   const [material, setMaterial] = useState(product?.material ?? "");
   const [color, setColor] = useState(product?.colors.join(", ") ?? "");
+  const [occasion, setOccasion] = useState(product?.occasion ?? "");
+  const [slug, setSlug] = useState(product?.slug ?? "");
   const [imageUrl, setImageUrl] = useState(product?.images[0] ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
+  const [isActive, setIsActive] = useState(product?.isActive ?? true);
+  const [isFeatured, setIsFeatured] = useState(product?.featured ?? false);
+  const [bestSeller, setBestSeller] = useState(product?.bestSeller ?? false);
   return (
-    <Modal title={product ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"} onClose={onClose}>
+    <Modal
+      title={product ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
+      subtitle="Cập nhật đầy đủ thông tin, giá và trạng thái hiển thị."
+      onClose={onClose}
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -758,15 +769,20 @@ function ProductForm({
           onSave({
             productName: name.trim(),
             categoryId,
-            slug: product?.slug || slugify(name),
+            slug: slugify(slug || name),
             price: Number(price) || 0,
+            discountPrice: Number(discountPrice) || 0,
             wholesalePrice: Number(wholesalePrice) || 0,
             stockQuantity: Number(stock) || 0,
+            soldQuantity: Number(soldQuantity) || 0,
             material: material.trim(),
             color: color.trim(),
+            occasion: occasion.trim(),
             imageUrl: imageUrl.trim(),
             description: description.trim(),
-            isActive: Number(stock) > 0,
+            isActive,
+            isFeatured,
+            bestSeller,
           });
         }}
         className="grid gap-4 sm:grid-cols-2"
@@ -792,6 +808,13 @@ function ProductForm({
             ))}
           </select>
         </Field>
+        <Field label="Đường dẫn Slug" hint="Tự động tạo nếu bỏ trống">
+          <input
+            value={slug}
+            onChange={(event) => setSlug(event.target.value)}
+            className="form-input"
+          />
+        </Field>
         <Field label="Giá bán (VNĐ)">
           <input
             type="number"
@@ -810,6 +833,15 @@ function ProductForm({
             className="form-input"
           />
         </Field>
+        <Field label="Giá khuyến mãi (VNĐ)">
+          <input
+            type="number"
+            min="0"
+            value={discountPrice}
+            onChange={(event) => setDiscountPrice(event.target.value)}
+            className="form-input"
+          />
+        </Field>
         <Field label="Tồn kho">
           <input
             type="number"
@@ -823,6 +855,23 @@ function ProductForm({
           <input
             value={material}
             onChange={(event) => setMaterial(event.target.value)}
+            className="form-input"
+          />
+        </Field>
+        <Field label="Dịp sử dụng">
+          <input
+            value={occasion}
+            onChange={(event) => setOccasion(event.target.value)}
+            placeholder="Đi làm, đi tiệc..."
+            className="form-input"
+          />
+        </Field>
+        <Field label="Đã bán">
+          <input
+            type="number"
+            min="0"
+            value={soldQuantity}
+            onChange={(event) => setSoldQuantity(event.target.value)}
             className="form-input"
           />
         </Field>
@@ -850,6 +899,11 @@ function ProductForm({
             className="form-input resize-none"
           />
         </Field>
+        <div className="flex flex-wrap gap-5 sm:col-span-2">
+          <CheckField label="Đang hiển thị" checked={isActive} onChange={setIsActive} />
+          <CheckField label="Sản phẩm nổi bật" checked={isFeatured} onChange={setIsFeatured} />
+          <CheckField label="Bán chạy" checked={bestSeller} onChange={setBestSeller} />
+        </div>
         <div className="flex justify-end gap-2 sm:col-span-2">
           <button
             type="button"
@@ -885,8 +939,13 @@ function CategoryForm({
   const [slug, setSlug] = useState(category?.slug ?? "");
   const [description, setDescription] = useState(category?.description ?? "");
   const [image, setImage] = useState(category?.image ?? "");
+  const [isActive, setIsActive] = useState(category?.isActive ?? true);
   return (
-    <Modal title={category ? "Chỉnh sửa danh mục" : "Thêm danh mục"} onClose={onClose}>
+    <Modal
+      title={category ? "Chỉnh sửa danh mục" : "Thêm danh mục"}
+      subtitle="Tên, slug, mô tả và ảnh đại diện danh mục."
+      onClose={onClose}
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -899,7 +958,7 @@ function CategoryForm({
             slug: slugify(slug || name),
             description: description.trim(),
             imgUrl: image.trim(),
-            isActive: true,
+            isActive,
           });
         }}
         className="space-y-4"
@@ -935,6 +994,7 @@ function CategoryForm({
             className="form-input resize-none"
           />
         </Field>
+        <CheckField label="Đang hiển thị" checked={isActive} onChange={setIsActive} />
         <div className="flex justify-end gap-2">
           <button
             type="button"
@@ -959,11 +1019,13 @@ function Field({
   label,
   required,
   wide,
+  hint,
   children,
 }: {
   label: string;
   required?: boolean;
   wide?: boolean;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -971,6 +1033,7 @@ function Field({
       <span className="mb-1.5 block text-xs font-semibold text-slate-600">
         {label}
         {required && <span className="text-red-500"> *</span>}
+        {hint && <span className="ml-2 font-normal text-slate-400">{hint}</span>}
       </span>
       {children}
     </label>
@@ -979,18 +1042,23 @@ function Field({
 
 function Modal({
   title,
+  subtitle,
   onClose,
   children,
 }: {
   title: string;
+  subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 p-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-5 shadow-2xl sm:p-7">
+      <div className="w-full max-w-3xl rounded-2xl bg-white p-5 shadow-2xl sm:p-7">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <div>
+            <h2 className="text-lg font-bold">{title}</h2>
+            {subtitle && <p className="mt-1 text-xs text-slate-400">{subtitle}</p>}
+          </div>
           <button onClick={onClose} aria-label="Đóng">
             <X className="h-5 w-5 text-slate-400" />
           </button>
@@ -998,6 +1066,28 @@ function Modal({
         {children}
       </div>
     </div>
+  );
+}
+
+function CheckField({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-slate-600">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 accent-slate-900"
+      />
+      {label}
+    </label>
   );
 }
 
@@ -1012,8 +1102,8 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function formatDate(id: string) {
-  return id.length > 10
-    ? new Date(Number.parseInt(id.slice(-8), 16) * 1000).toLocaleDateString("vi-VN")
-    : "—";
+function formatDate(value?: string) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("vi-VN");
 }

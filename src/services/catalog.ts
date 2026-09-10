@@ -49,6 +49,7 @@ export function mapBackendCategory(doc: BackendCategory): Category {
     slug: doc.slug,
     image: doc.imgUrl && doc.imgUrl.trim() !== "" ? doc.imgUrl : getCategoryFallbackImage(doc.slug),
     description: doc.description || "",
+    isActive: doc.isActive,
   };
 }
 
@@ -105,6 +106,7 @@ export function mapBackendProduct(doc: BackendProduct): Product {
     stockQuantity: doc.stockQuantity ?? 0,
     soldQuantity: doc.soldQuantity ?? 0,
     occasion: doc.occasion || "",
+    updatedAt: doc.updatedAt,
   };
 }
 
