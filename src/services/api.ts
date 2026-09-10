@@ -7,263 +7,163 @@ import type {
   LoginResponseData,
 } from "@/types";
 
-// ================== STORAGE KEYS ==================
 const ACCESS_TOKEN_KEY = "accessToken";
 const USER_KEY = "authUser";
-type StoredUser = NonNullable<LoginResponseData["user"]>;
 
-// ================== TOKEN STORAGE ==================
-
-export const getStoredToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  try {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
-  } catch {
-    return null;
-  }
+const storage = {
+  get(key: string) {
+    if (typeof window === "undefined") return null;
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key: string, value: string) {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(key, value);
+  },
+  remove(key: string) {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(key);
+  },
 };
 
-export const setStoredToken = (token: string): void => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
-  } catch (e) {
-    console.error("Không thể lưu token vào localStorage:", e);
-  }
-};
+export const getStoredToken = () => storage.get(ACCESS_TOKEN_KEY);
+export const setStoredToken = (token: string) => storage.set(ACCESS_TOKEN_KEY, token);
+export const removeStoredToken = () => storage.remove(ACCESS_TOKEN_KEY);
 
-export const removeStoredToken = (): void => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-  } catch (e) {
-    console.error("Không thể xóa token khỏi localStorage:", e);
-  }
-};
-
-// ================== USER STORAGE ==================
-export const setStoredUser = (user: LoginResponseData["user"]): void => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-  } catch (e) {
-    console.error("Không thể lưu user vào localStorage:", e);
-  }
+export const setStoredUser = (user: LoginResponseData["user"]) => {
+  if (user) storage.set(USER_KEY, JSON.stringify(user));
 };
 
 export const getStoredUser = <T = LoginResponseData["user"]>(): T | null => {
-  if (typeof window === "undefined") return null;
+  const raw = storage.get(USER_KEY);
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as T) : null;
+    return JSON.parse(raw) as T;
   } catch {
     return null;
   }
 };
 
-export const removeStoredUser = (): void => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(USER_KEY);
-  } catch (e) {
-    console.error("Không thể xóa user khỏi localStorage:", e);
-  }
-};
+export const removeStoredUser = () => storage.remove(USER_KEY);
 
-// ================== API BASE URL ==================
-const getApiBaseUrl = (): string => {
-  if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env["VITE_API_URL"]) {
-    return import.meta.env["VITE_API_URL"].replace(/\/+$/, "");
-  }
-  return "http://localhost:5000/api/v1";
-};
+const API_BASE_URL =
+  typeof import.meta !== "undefined" && import.meta.env?.["VITE_API_URL"]
+    ? import.meta.env["VITE_API_URL"].replace(/\/+$/, "")
+    : "http://localhost:5000/api/v1";
 
-const API_BASE_URL = getApiBaseUrl();
-
-/**
- * Helper gọi HTTP Request chuẩn hóa.
- * Trả về JSON thô đã parse (không ép kiểu ApiResponse ở đây,
- * vì một số endpoint như /auth/login trả object phẳng, không bọc "data").
- */
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : "/" + endpoint}`;
+  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const headers = new Headers(options?.headers);
+  headers.set("Accept", "application/json");
+  if (options?.body && !headers.has("Content-Type"))
+    headers.set("Content-Type", "application/json");
   const token = getStoredToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...((options?.headers as Record<string, string>) || {}),
-  };
-
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      let errorJson: { message?: string };
-      try {
-        errorJson = JSON.parse(errorText);
-      } catch {
-        errorJson = { message: errorText || res.statusText };
-      }
-      throw new Error(errorJson.message || `HTTP error! status: ${res.status}`);
+  const response = await fetch(url, { ...options, headers });
+  const text = await response.text();
+  let body: { message?: string; error?: string } | T | undefined;
+  if (text) {
+    try {
+      body = JSON.parse(text) as T;
+    } catch {
+      body = { message: text };
     }
-
-    const json = (await res.json()) as T;
-    return json;
-  } catch (error) {
-    console.error(`[API Error] ${endpoint}:`, error);
-    throw error;
   }
+  if (!response.ok) {
+    const errorBody = body as { message?: string; error?: string } | undefined;
+    throw new Error(
+      errorBody?.message || errorBody?.error || `Yêu cầu thất bại (${response.status})`,
+    );
+  }
+  return body as T;
 }
 
-/**
- * Xây dựng query string từ object params
- */
-function buildQueryString(params?: Record<string, unknown>): string {
+function buildQueryString(params?: Record<string, unknown>) {
   if (!params) return "";
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      searchParams.append(key, String(value));
+      searchParams.set(key, String(value));
     }
   });
-  const qs = searchParams.toString();
-  return qs ? `?${qs}` : "";
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
 }
 
 export const api = {
-  // ================== AUTH API ==================
-
-  /**
-   * Đăng nhập quản trị viên
-   * Payload: { username, password, secretKey }
-   * BE trả về object PHẲNG: { message, accessToken, user }
-   */
-  async login(credentials: LoginCredentials): Promise<LoginResponseData> {
+  async login(credentials: LoginCredentials) {
     const data = await request<LoginResponseData>("/auth/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
-
     const token = data.accessToken ?? data.token;
-
     if (token) setStoredToken(token);
     if (data.user) setStoredUser(data.user);
-
     return data;
   },
-
-  /**
-   * Đăng xuất quản trị viên: Xoá token/user local và gọi BE (nếu có endpoint)
-   */
-  async logout(): Promise<void> {
+  async logout() {
     try {
-      await request<unknown>("/auth/logout", { method: "POST" });
-    } catch {
-      // Bỏ qua lỗi mạng khi logout để luôn dọn dẹp local storage
+      await request("/auth/logout", { method: "POST" });
     } finally {
       removeStoredToken();
       removeStoredUser();
     }
   },
-
-  /**
-   * Kiểm tra trạng thái đã đăng nhập hay chưa
-   */
-  isAuthenticated(): boolean {
-    return Boolean(getStoredToken());
+  isAuthenticated: () => Boolean(getStoredToken()),
+  getToken: getStoredToken,
+  getCurrentUser: () => getStoredUser<LoginResponseData["user"]>(),
+  async getProducts(params?: GetProductsParams) {
+    return request<ApiResponse<BackendProduct[]>>(`/products${buildQueryString(params)}`);
   },
-
-  /**
-   * Lấy token hiện tại
-   */
-  getToken(): string | null {
-    return getStoredToken();
+  async getProductById(id: string) {
+    return request<ApiResponse<BackendProduct>>(`/products/${encodeURIComponent(id)}`);
   },
-
-  /**
-   * Lấy thông tin user đã đăng nhập (từ localStorage)
-   */
-  getCurrentUser(): LoginResponseData["user"] | null {
-    return getStoredUser<LoginResponseData["user"]>();
-  },
-
-  // ================== PRODUCT API ==================
-
-  async getProducts(params?: GetProductsParams): Promise<ApiResponse<BackendProduct[]>> {
-    const qs = buildQueryString(params as Record<string, unknown>);
-    return request<ApiResponse<BackendProduct[]>>(`/products${qs}`);
-  },
-
-  async getProductById(id: string): Promise<ApiResponse<BackendProduct>> {
-    return request<ApiResponse<BackendProduct>>(`/products/${id}`);
-  },
-
-  async getProductBySlug(slug: string): Promise<ApiResponse<BackendProduct>> {
+  async getProductBySlug(slug: string) {
     return request<ApiResponse<BackendProduct>>(`/products/slug/${encodeURIComponent(slug)}`);
   },
-
-  async createProduct(data: Partial<BackendProduct>): Promise<ApiResponse<BackendProduct>> {
+  async createProduct(data: Partial<BackendProduct>) {
     return request<ApiResponse<BackendProduct>>("/products", {
       method: "POST",
       body: JSON.stringify(data),
     });
   },
-
-  async updateProduct(
-    id: string,
-    data: Partial<BackendProduct>,
-  ): Promise<ApiResponse<BackendProduct>> {
-    return request<ApiResponse<BackendProduct>>(`/products/${id}`, {
+  async updateProduct(id: string, data: Partial<BackendProduct>) {
+    return request<ApiResponse<BackendProduct>>(`/products/${encodeURIComponent(id)}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   },
-
-  async deleteProduct(id: string): Promise<ApiResponse<unknown>> {
-    return request<ApiResponse<unknown>>(`/products/${id}`, {
+  async deleteProduct(id: string) {
+    return request<ApiResponse<unknown>>(`/products/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
   },
-
-  // ================== CATEGORY API ==================
-
-  async getCategories(): Promise<ApiResponse<BackendCategory[]>> {
+  async getCategories() {
     return request<ApiResponse<BackendCategory[]>>("/categories");
   },
-
-  async getProductsByCategory(
-    categoryId: string,
-    params?: Omit<GetProductsParams, "categoryId">,
-  ): Promise<ApiResponse<BackendProduct[]>> {
-    const qs = buildQueryString(params as Record<string, unknown>);
-    return request<ApiResponse<BackendProduct[]>>(`/categories/${categoryId}/products${qs}`);
+  async getProductsByCategory(categoryId: string, params?: Omit<GetProductsParams, "categoryId">) {
+    return request<ApiResponse<BackendProduct[]>>(
+      `/categories/${encodeURIComponent(categoryId)}/products${buildQueryString(params)}`,
+    );
   },
-
-  async createCategory(data: Partial<BackendCategory>): Promise<ApiResponse<BackendCategory>> {
+  async createCategory(data: Partial<BackendCategory>) {
     return request<ApiResponse<BackendCategory>>("/categories", {
       method: "POST",
       body: JSON.stringify(data),
     });
   },
-
-  async updateCategory(
-    id: string,
-    data: Partial<BackendCategory>,
-  ): Promise<ApiResponse<BackendCategory>> {
-    return request<ApiResponse<BackendCategory>>(`/categories/${id}`, {
+  async updateCategory(id: string, data: Partial<BackendCategory>) {
+    return request<ApiResponse<BackendCategory>>(`/categories/${encodeURIComponent(id)}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   },
-
-  async deleteCategory(id: string): Promise<ApiResponse<unknown>> {
-    return request<ApiResponse<unknown>>(`/categories/${id}`, {
+  async deleteCategory(id: string) {
+    return request<ApiResponse<unknown>>(`/categories/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
   },

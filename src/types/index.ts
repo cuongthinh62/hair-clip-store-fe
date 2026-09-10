@@ -25,6 +25,7 @@ export interface Product {
   occasion?: string | undefined;
   tags?: string[] | undefined;
   categoryId?: string | undefined;
+  updatedAt?: string | undefined;
 }
 
 export interface Category {
@@ -34,6 +35,7 @@ export interface Category {
   image: string;
   description: string;
   productCount?: number | undefined;
+  isActive?: boolean | undefined;
 }
 
 export interface FilterOption {
