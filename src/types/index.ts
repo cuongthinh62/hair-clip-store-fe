@@ -55,17 +55,6 @@ export interface SiteConfig {
 
 // ================== BACKEND DTO TYPES ==================
 
-export interface BackendCategory {
-  _id: string;
-  categoryName: string;
-  slug: string;
-  description?: string | undefined;
-  imgUrl?: string | undefined;
-  isActive: boolean;
-  createdAt?: string | undefined;
-  updatedAt?: string | undefined;
-}
-
 export interface BackendProduct {
   _id: string;
   categoryId: string | BackendCategory;
@@ -98,6 +87,7 @@ export interface PaginationInfo {
 }
 
 export interface ApiResponse<T> {
+  meta: any;
   statusCode: number;
   message: string;
   data: T;
@@ -138,4 +128,63 @@ export interface LoginResponseData {
       }
     | undefined;
   [key: string]: unknown;
+}
+
+export type CreateCategoryPayload = Pick<BackendCategory, "categoryName" | "slug"> &
+  Partial<Pick<BackendCategory, "description" | "imgUrl" | "isActive">>;
+
+export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;
+
+export type CreateProductPayload = Omit<
+  Product,
+  "_id" | "createdAt" | "updatedAt" | "soldQuantity" | "categoryId"
+> & { categoryId: string };
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+// ================== CATEGORY ==================
+export interface BackendCategory {
+  _id: string;
+  categoryName: string;
+  slug: string;
+  description?: string;
+  imgUrl?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CategoryFormValues = {
+  categoryName: string;
+  slug: string;
+  description?: string;
+  imgUrl?: string;
+  isActive: boolean;
+};
+
+export type ProductFormValues = {
+  categoryId: string;
+  productName: string;
+  slug: string;
+  material?: string;
+  description?: string;
+  wholesalePrice: number;
+  price: number;
+  discountPrice?: number;
+  stockQuantity: number;
+  color?: string;
+  occasion?: string;
+  imageUrl?: string;
+  bestSeller: boolean;
+  isFeatured: boolean;
+  isActive: boolean;
+};
+
+export interface GetProductsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: string;
+  status?: "active" | "inactive";
+  sort?: string;
 }

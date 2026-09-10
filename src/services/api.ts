@@ -10,7 +10,6 @@ import type {
 // ================== STORAGE KEYS ==================
 const ACCESS_TOKEN_KEY = "accessToken";
 const USER_KEY = "authUser";
-type StoredUser = NonNullable<LoginResponseData["user"]>;
 
 // ================== TOKEN STORAGE ==================
 
@@ -113,8 +112,18 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       throw new Error(errorJson.message || `HTTP error! status: ${res.status}`);
     }
 
-    const json = (await res.json()) as T;
-    return json;
+    // FIX: parse an toàn cho response rỗng (vd: 204 No Content ở DELETE),
+    // tránh res.json() throw "Unexpected end of JSON input" dù request đã thành công.
+    const rawText = await res.text();
+    if (!rawText) {
+      return undefined as T;
+    }
+    try {
+      return JSON.parse(rawText) as T;
+    } catch (parseErr) {
+      console.error(`[API Parse Error] ${endpoint}:`, parseErr);
+      throw new Error("Không đọc được dữ liệu trả về từ server");
+    }
   } catch (error) {
     console.error(`[API Error] ${endpoint}:`, error);
     throw error;
@@ -150,9 +159,16 @@ export const api = {
       body: JSON.stringify(credentials),
     });
 
-    const token = data.accessToken ?? data.token;
+    // FIX: fallback an toàn về mặt kiểu (không còn đọc data.token nếu field
+    // đó không tồn tại trên LoginResponseData) + báo lỗi rõ ràng nếu thiếu token,
+    // thay vì âm thầm "đăng nhập thành công" mà không lưu được gì.
+    const token = data.accessToken ?? (data as unknown as { token?: string }).token;
 
-    if (token) setStoredToken(token);
+    if (!token) {
+      throw new Error("Đăng nhập thất bại: server không trả về accessToken");
+    }
+
+    setStoredToken(token);
     if (data.user) setStoredUser(data.user);
 
     return data;

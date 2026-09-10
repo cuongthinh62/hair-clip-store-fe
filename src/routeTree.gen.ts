@@ -15,6 +15,8 @@ import { Route as DanhMucRouteImport } from './routes/danh-muc'
 import { Route as GioiThieuRouteImport } from './routes/gioi-thieu'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as SanPhamIndexRouteImport } from './routes/san-pham.index'
 import { Route as SanPhamSlugRouteImport } from './routes/san-pham.$slug'
 
@@ -48,6 +50,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsRoute = AdminProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AdminRoute,
+} as any)
 const SanPhamIndexRoute = SanPhamIndexRouteImport.update({
   id: '/san-pham/',
   path: '/san-pham/',
@@ -61,32 +73,38 @@ const SanPhamSlugRoute = SanPhamSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
   '/login': typeof LoginRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/products': typeof AdminProductsRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham/': typeof SanPhamIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
   '/login': typeof LoginRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/products': typeof AdminProductsRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham': typeof SanPhamIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/danh-muc': typeof DanhMucRoute
   '/gioi-thieu': typeof GioiThieuRoute
   '/lien-he': typeof LienHeRoute
   '/login': typeof LoginRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/products': typeof AdminProductsRoute
   '/san-pham/$slug': typeof SanPhamSlugRoute
   '/san-pham/': typeof SanPhamIndexRoute
 }
@@ -99,6 +117,8 @@ export interface FileRouteTypes {
     | '/gioi-thieu'
     | '/lien-he'
     | '/login'
+    | '/admin/categories'
+    | '/admin/products'
     | '/san-pham/$slug'
     | '/san-pham/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +129,8 @@ export interface FileRouteTypes {
     | '/gioi-thieu'
     | '/lien-he'
     | '/login'
+    | '/admin/categories'
+    | '/admin/products'
     | '/san-pham/$slug'
     | '/san-pham'
   id:
@@ -119,13 +141,15 @@ export interface FileRouteTypes {
     | '/gioi-thieu'
     | '/lien-he'
     | '/login'
+    | '/admin/categories'
+    | '/admin/products'
     | '/san-pham/$slug'
     | '/san-pham/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   DanhMucRoute: typeof DanhMucRoute
   GioiThieuRoute: typeof GioiThieuRoute
   LienHeRoute: typeof LienHeRoute
@@ -178,6 +202,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/categories': {
+      id: '/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AdminCategoriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products': {
+      id: '/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AdminProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/san-pham/': {
       id: '/san-pham/'
       path: '/san-pham'
@@ -195,9 +233,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminProductsRoute: typeof AdminProductsRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminProductsRoute: AdminProductsRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   DanhMucRoute: DanhMucRoute,
   GioiThieuRoute: GioiThieuRoute,
   LienHeRoute: LienHeRoute,
