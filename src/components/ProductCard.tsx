@@ -35,19 +35,14 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Content */}
       <div className="flex flex-1 flex-col gap-1 p-2.5 sm:gap-1.5 sm:p-4">
         {/* Category */}
-        <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-rose sm:text-[11px] sm:tracking-[0.14em]">
+        {/* <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-rose sm:text-[11px] sm:tracking-[0.14em]">
           {product.categoryName || getCategoryName(product.category)}
-        </p>
+        </p> */}
 
         {/* Product name */}
         <h3 className="line-clamp-2 text-xs font-semibold leading-snug text-foreground sm:text-base">
           {product.name}
         </h3>
-
-        {/* Product code */}
-        <p className="truncate text-[10px] text-muted-foreground sm:text-xs">
-          Mã: {product.productCode}
-        </p>
 
         {/* Description - chỉ hiện trên desktop */}
         <p className="hidden text-xs leading-relaxed text-muted-foreground sm:line-clamp-2">

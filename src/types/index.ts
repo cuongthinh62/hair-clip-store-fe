@@ -52,6 +52,7 @@ export interface SiteConfig {
   name: string;
   tagline: string;
   phone: string;
+  address: string;
   facebookUrl: string;
   zaloPhone: string;
 }

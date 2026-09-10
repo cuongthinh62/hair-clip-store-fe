@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Phone } from "lucide-react";
+import { Facebook, MapPin, Phone } from "lucide-react";
 
 import { SITE, ZALO_CONTACT_URL } from "@/lib/site";
 import { ZaloIcon } from "./ZaloButton";
@@ -47,6 +47,10 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-semibold tracking-wide text-foreground uppercase">Liên hệ</h3>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{SITE.address}</span>
+            </li>
             <li>
               <a
                 href={ZALO_CONTACT_URL}
@@ -70,9 +74,13 @@ export function Footer() {
                 href={SITE.facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Mở Facebook của Thịnh Phát"
                 className="inline-flex items-center gap-2 transition-colors hover:text-rose"
               >
-                <Facebook className="h-4 w-4" /> Facebook
+                <span className="facebook-pulse inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1877f2] text-white shadow-soft">
+                  <Facebook className="h-4 w-4" fill="currentColor" />
+                </span>
+                Facebook
               </a>
             </li>
           </ul>

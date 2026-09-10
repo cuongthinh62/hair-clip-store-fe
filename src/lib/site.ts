@@ -13,6 +13,9 @@ export const SITE: SiteConfig = {
   // Số điện thoại liên hệ
   phone: "0966538356",
 
+  // Địa chỉ liên hệ
+  address: "Ấp 3, phường Long An, tỉnh Tây Ninh",
+
   // Facebook
   facebookUrl: "https://www.facebook.com/share/1EcWAscx3Z/?mibextid=wwXIfr",
 

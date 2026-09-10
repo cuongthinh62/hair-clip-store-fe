@@ -96,7 +96,6 @@ function ProductDetail() {
           <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
             {product.name}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">Mã sản phẩm: {product.productCode}</p>
 
           <div className="mt-5 flex items-baseline gap-3">
             {product.discountPrice &&
